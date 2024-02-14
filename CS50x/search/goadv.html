@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Google</title>
+    <style>
+        body {
+            font-family: arial, sans-serif;
+            font-size: 14px;
+            margin: 10px;
+            padding: 15px;
+            background: #202124;
+            font-style: inherit;
+            vertical-align: baseline;
+            text-decoration: none;
+
+            color: white;
+        }
+        nav{
+            display: flex;
+            flex-direction: row-reverse;
+        }
+
+        nav a {
+            height: 20px;
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            font-style: none;
+            text-decoration: none;
+        }
+
+        nav a:hover{
+            text-decoration:underline;
+        }
+        
+        #top {
+            height: 20px;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: orange;
+        }
+
+        .container {
+            margin-top: 10px;
+            width: 800px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input[type="submit"] {
+            float: right;
+            background: #8ab4f8;
+            border: 1px solid #3079ed;
+            border-radius: 2px;
+            border-color: #8ab4f8;
+            box-shadow: none;
+            margin: 10px 0;
+            padding: 0 12px;
+            color: #202124;
+            font-weight: bold;
+            height: 30px;
+            font-size: 11px;
+            outline: 0;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            border-radius: 4px;
+            background: #b8cdef;
+            border-color: #2e6ccf
+        }
+
+        .inputbox {
+            display: flex;
+            float: right;
+            background: #202124;
+            width: 60%;
+            height: 20px;
+            border: 1px solid grey;
+            border-radius: 5px;
+            outline: blue;
+            margin: 4px;
+            color: white;
+            padding: 3px 5px;
+        }
+
+        .inputText {
+            margin: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="index.html">Google Search</a>
+    </nav>
+    <div id="top">Advance Search</div>
+    <hr>
+    <div class="container">
+        <form action="https://www.google.com/search" method="get">
+            <div><span class="inputText">all these words:</span><input autofill="off" type="text" class="inputbox" value
+                    name="as_q"></div>
+            <div><span class="inputText">this exact word or phrase:</span><input type="text" class="inputbox" value
+                    name="as_epq"></div>
+            <div><span class="inputText">any of these words:</span> <input type="text" class="inputbox" value
+                    name="as_oq"></div>
+            <div><span class="inputText">none of these words:</span> <input type="text" class="inputbox" value
+                    name="as_eq"></div>
+            <div><input type="submit" value="Advance Search"></div>
+        </form>
+    </div>
+</body>
+
+</html>
