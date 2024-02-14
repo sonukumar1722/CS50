@@ -1,0 +1,14 @@
+{% extends 'encyclopedia/layout.html'%}
+
+{% block title %}
+    Edit page
+{% endblock%}
+
+{% block body %}
+<form action="{% url 'edit' entry %}" method="post">
+    <div><textarea name="content" class="code p-2 mx-0">{{content}}</textarea></div>
+    <input type="submit" value="Save">
+    <a  href="{% url 'get_page' entry %}"><input type="button" value="Cancel"></a>
+</form>
+
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    Create page
+{% endblock %}
+
+{% block body %}
+<h3>Create Page</h3>
+<form action="{% url 'create' %}" method="post">
+    <div class="m-2">
+        <input type="text" class="p-1" name="title" placeholder="Title">
+    </div>
+    <div class="m-2">
+        <textarea name="content" class="code p-2" placeholder="Enter the markdown text"></textarea>
+    </div>
+
+    <input type="submit">
+    <a  href="{% url 'index' %}"><input type="button" value="Cancel"></a>
+</form>
+
+{% endblock %}
