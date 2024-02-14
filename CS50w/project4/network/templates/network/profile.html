@@ -1,0 +1,40 @@
+{% extends 'network/layout.html' %}
+{% load static %}
+
+{% block body %}
+    <div class="container">
+        <div class="ubuntu mt-2" id="followers">
+            Followers:  <span id="follower_count">{{follower_count}}</span>
+            Following:  <span id="following_count">{{following_count}}</span>
+            {% if user.is_authenticated and not request.user.id == user_id %}
+            <button id="follow" class="btn btn-sm btn-outline-primary ubuntu">Follow</button>
+            {% endif %}
+        </div><hr>
+        {% block posts %}
+            <h1>Posts</h1>
+            {% for post in posts %}
+                <div class="form-group brd">
+                    <div id="name" class="font-weight-bold h5 ubuntu">
+                        <a href="{% url 'profile' post.creator.id %}">{{post.creator.username}}</a>
+                    </div>
+                    {% if request.user.id == post.creator.id %}
+                        <a id="edit-{{post.id}}" class="text-primary ubuntu" href="#edit-{{post.id}}">Edit</a>
+                        <div id="edit-area-{{post.id}}" class="form-group edit-area hidden">
+                            <form action="edit" method="post">
+                                {% csrf_token %}
+                                <textarea name="content" class="form-control" id="content" cols="8" rows="3">{{post.content}}</textarea>
+                                <button class="btn btn-primary mt-1" type="submit" name="post_id" value="{{post.id}}">Save</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                    <div id='content' class="font-weight-normal">{{post.content}}</div>
+                    <div class="text-secondary ubuntu">{{post.datetime}}</div>
+                    <div class="text-secondary ubuntu"><a  id="like-{{post.id}}" href="">&#x2764;</a> <span>{{post.likes}}</span></div>
+                    <div id="comment-{{post.id}}" class="text-secondary">Comment</div>
+                </div>
+                {% empty %}
+                    No Posts!
+            {% endfor %}
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+<h1> All Posts </h1>
+<div id="index-view">
+    {% if user.is_authenticated %}
+    <div class="brd">
+        <h3> New Post</h3>
+        <div class="form-group">
+            <form action="{% url 'index' %}" method="post">
+                {% csrf_token %}
+                <textarea name="content" class="form-control" id="content" cols="10" rows="3"></textarea>
+                <input class="btn btn-primary mt-1" type="submit" value="Post">
+            </form>
+        </div>
+    </div>
+    {% endif %}
+    {% block posts %}
+        {% for post in posts %}
+            <div class="form-group brd">
+                <div id="name" class="font-weight-bold h5 ubuntu">
+                    <a href="{% url 'profile' post.creator_id %}">{{post.creator.username}}</a>
+                </div>
+                {% if request.user.id == post.creator.id %}
+                    <a id="edit-{{post.id}}" class="text-primary ubuntu" href="#edit-{{post.id}}">Edit</a>
+                    <div id="edit-area-{{post.id}}" class="form-group edit-area hidden">
+                        <form action="edit" method="post">
+                            {% csrf_token %}
+                            <textarea name="content" class="form-control" id="content" cols="8" rows="3">{{post.content}}</textarea>
+                            <button class="btn btn-primary mt-1" type="submit" name="post_id" value="{{post.id}}">Save</button>
+                        </form>
+                    </div>
+                {% endif %}
+                <div class="font-weight-normal">{{post.content}}</div>
+                <div class="text-secondary ubuntu">{{post.datetime}}</div>
+                <div class="text-secondary ubuntu"><a  id="like-{{post.id}}" class="" href="">&#x2764;</a> <span>{{post.likes}}</span></div>
+                <div id="comment-{{post.id}}" class="text-secondary">Comment</div>
+            </div>
+            {% empty %}
+                No Posts!
+        {% endfor %}
+    {% endblock %}
+</div>
+{% endblock %}

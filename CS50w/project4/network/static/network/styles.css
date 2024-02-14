@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@500&display=swap');
+body {
+    margin:5px !important;
+}
+
+.ubuntu, nav, h1{
+    font-family:  'Ubuntu', sans-serif;
+}
+
+.brd {
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding: 20px;
+    margin:5px;
+}
+.font-weight-noraml{
+    font-family: 'Times New Roman', Times, serif !important;
+}
+
+.text-link{
+    color: rgb(0, 162, 226) !important;
+}
+
+a {
+    color: black;
+}
+
+a:hover {
+    color: rgb(0, 162, 226);
+}
