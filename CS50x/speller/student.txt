@@ -1,0 +1,2 @@
+Unable to open the Dictionary file
+Could not open texts/lalaland.txt.

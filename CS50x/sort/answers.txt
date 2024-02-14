@@ -1,0 +1,11 @@
+sort1 uses: Bubble Sort
+
+How do you know?: As it take highest amount of time to sort the lists when it is in reverse order and random order.
+
+sort2 uses: Merge Sort
+
+How do you know?: It takes very less to sort in every  cases i.e. random list, reverse list and sorted list.
+
+sort3 uses: Selection Sort
+
+How do you know?: It takes average amount of time to sort the lists.
