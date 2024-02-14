@@ -1,0 +1,24 @@
+textarea {
+    min-height: 500px;
+}
+.mails{
+    border: 2px solid black;
+    border-radius: 2px;
+    display: flex; 
+    -ms-flex-align: center;
+    justify-content: space-between;
+}
+.text-body{
+    height:400px;
+    font-family: 'ubuntu','sans-serif';
+    word-wrap: break-word;
+}
+.firstchild{
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 11px;
+}
+.mails:hover{
+    cursor: pointer;
+}

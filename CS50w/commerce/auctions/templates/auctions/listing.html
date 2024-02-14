@@ -1,0 +1,139 @@
+{% extends 'auctions/layout.html' %}
+
+{% block body %}
+
+    <div class="listing_card">
+        <div>
+            <h1>Listing: {{item.title}}</h1>
+        </div>
+
+        <!-- User is loged in and user is not the owner of product -->
+        {% if user.is_authenticated and not item.owner == request.user.username %}
+            <div class="form-group">
+
+                <!-- while product is not in the watchlist give option to add inn. -->
+                {% if not item.id in watchlist_ids %}
+                    <form action="{% url 'watchlist' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary" name="product_id" value="{{item.id}}">Add to Watchlist</button>
+                    </form>
+
+                <!-- while product is in the watchlist give option to remove it. -->
+                {% elif item.id in watchlist_ids %}
+                    <form action="{% url 'remove' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger" name="product_id" value="{{item.id}}">Remove from Watchlist</button>
+                    </form>
+                {% endif %}
+            </div>
+
+        <!-- User is loged in and user is the owner of the product -->
+        {% elif user.is_authenticated and item.owner == request.user.username %}
+            <div class="form-group">
+                <form action="{% url 'close' %}" method="post">
+                    {% csrf_token %}
+
+                    <!-- while auction is not closed  i.e (item.status = True)-->
+                    {% if item.status %}
+                        <button class="btn btn-secondary" disabled>Close Auction</button>
+
+                    <!-- if auction is closed i.e (item.status = False) -->
+                    {% else %}
+                        <button type="submit" class="btn btn-primary" name="product_id" value="{{item.id}}">Close Auction</button>
+                    {% endif %}
+                </form>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- user is loged in and user is not the woner of product -->
+    {% if user.is_authenticated and not item.owner == request.user.username %}
+        <div class="form-group">
+
+            <!-- if product in the watchlist -->
+            {% if item.id in watchlist_ids %}
+                <span class="badge badge-dark">Watchlist</span>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="form-group"><img class="list-img-h" src="{{item.image}}" alt="{{item.title}}"></div>
+    <div class="fomr-group">{{item.discription}}</div>
+    <div class="form-group h3 mt-2"><Strong>Price: ${{item.price}}</Strong></div>
+
+
+    <div class="form-group">
+
+        <!-- user is loged in and auction is closed and user is the owner of the product -->
+        {% if user.is_authenticated and item.owner == request.user.username and item.status %}
+
+            {% if bidder.bidder %}
+                <strong class="text-success h4">This auction was won by "{{bidder.bidder}}" at cost "${{bidder.bid_value}}"</strong>
+            {% else %}
+                <strong class="text-danger h4">No bidding(s), No winner</strong>
+            {% endif %}
+
+        <!-- logged in user is not the owner of the product -->
+        {% elif user.is_authenticated and not item.owner == request.user.username %}
+
+            <!-- loged in user is the bidder of the current product and auction was closed and won the auction i.e (bidder.status = true)  -->
+            {% if bidder.status and bidder.bidder == request.user.username and bidder.product_id == item.id %}
+                <strong class="text-success h4">You won this Auction at "${{bidder.bid_value}}"     </strong>
+
+            <!-- logged in user is not the bidder of current product  and auction was closed-->
+            {% elif item.status and not bidder.bidder == request.user.username %}
+                <strong class="text-danger h5">This auction was closed.</strong>
+            
+            <!-- logged in user is not the bidder of current product and auction was not closed -->
+            {% else %}
+                <span> bid(s) so far, Your bid is the current bid.</span>
+                <form id="bidding" action="{% url 'bidding' %}" method="post">
+                    {% csrf_token %}
+                    <input id="bid_value" type="number" class="form-control" name="bid_value" placeholder="Bid ($)" step=".01" min="{{item.price}}">
+                    <button type="Submit" class="btn btn-primary mt-2" name="product_id" value="{{item.id}}">Place Bid</button>
+                </form>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <strong class="h3">Details:</strong>
+        <ul>
+            <li>Listed By: <strong>{{ item.owner }}</strong></li>
+            <li>Category: {{item.category}} </li>
+            <li>Date created: {{item.date}} </li>
+        </ul>
+    </div>
+
+
+    <strong class="h3">Comments:</strong><br>
+    {% for feedback in comments %}
+        <div class="mt-2 px-5">
+            {% if feedback.commenter == item.owner %}
+                <div class="mark bg-dark text-white px-2"><strong >{{feedback.commenter}}</strong></div>
+            {% else %}
+                <div class="mark px-2"><strong>{{feedback.commenter}}</strong></div>
+            {% endif %}
+
+            <div class="px-5 justify">{{feedback.comment}}</div>
+            <div class="text-right mr-5">{{feedback.date}}</div>
+        </div>
+    {% empty %}
+        No comments.
+    {% endfor %}
+
+    <!-- user logged in -->
+    {% if user.is_authenticated %}
+        <div class="form-group">
+            <form action="{% url 'comment' item.id %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="comment">Comment</label>
+                    <textarea name="comment" class="form-control" id="comment" cols="10" rows="3"></textarea>
+                </div>
+                <button type="Submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    {% endif %}
+
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'auctions/layout.html' %}
+
+{% block body %}
+
+<div class="container mt-3">
+    {% for item in items %}
+        {% if item.id in item_id %}
+            <a class=" text-decoration-none text-dark" href="{% url 'listing' item.id %}">
+                <div class="row my-3 p-2">
+                    <div class="col"><img src="{{item.image}}" alt="{{item.title}}"></div>
+                    <div class="col">
+                        <div class="listing_card mt-3">
+                            <div>
+                                <p class="text h2 "><Strong>{{item.title}}</Strong></p>
+                                <p class="text">{{item.discription}}</p>
+                                <p class="text"><strong>Price: ${{item.price}}</strong></p>
+                                <p class="text text-muted">Created {{item.date}}</p>
+                            </div>
+                            <div class="form-group">
+                                <form action="{% url 'remove' %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger" name="product_id" value="{{item.id}}">Remove </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        {% endif %}
+
+    {% empty %}
+        Nothing in Watchlist.
+    {% endfor %}
+</div>
+
+{% endblock %}

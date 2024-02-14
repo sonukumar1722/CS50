@@ -1,0 +1,170 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&family=Ubuntu:ital,wght@1,500;1,700&display=swap');
+
+* {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    padding: 10px;
+    background-color: rgba(32, 33, 36, 1);
+}
+
+
+body,
+.navbar {
+    background-color: #202124;
+    color: white;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: white;
+    /* font-family: arial, sans-serif; */
+    margin: 8px;
+}
+
+.container-fluid {
+    margin-top: 5px;
+    position: absolute;
+    right: 10px;
+}
+
+.nav-link:hover {
+    text-decoration: underline;
+}
+
+.signin {
+    padding: 8px 15px;
+    border: 1px solid transparent;
+    background-color: #8ab4f8;
+    border-radius: 5px;
+    color: black;
+    max-width: 60px;
+    justify-content: center;
+}
+
+.signin:hover {
+    background-color: rgb(229, 229, 229);
+    text-decoration: none;
+}
+
+.google {
+    display: flex;
+    font-size: 40px;
+    font-weight: bold;
+    font-family: 'Poppins', sans-serif;
+    font-family: 'Ubuntu', sans-serif;
+    color: white;
+    margin: auto;
+}
+
+h1 {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    object-position: center bottom;
+    width: auto;
+    margin: auto;
+}
+
+.form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+form {
+    display: flex;
+    width: 50%;
+    height: 2.8rem;
+    margin: 1rem;
+    justify-content: space-between;
+}
+
+
+
+
+#searchText {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.searchText:hover {
+    background: #38393a;
+    z-index: 1;
+    border: 1px solid #38393a;
+}
+
+body,
+input,
+button {
+    font-size: 14px;
+    font-family: arial, sans-serif;
+    color: #bdc1c6;
+}
+
+
+input[type="text"] {
+    background-color: transparent;
+    border: 1px solid grey;
+    color: #e8eaed;
+    word-wrap: break-word;
+    width: 100%;
+    padding-left:15px;
+    outline: none;
+    font-size: 16px;
+    border-radius: 2rem 0 0 2rem;
+}
+input[type="text"]:hover, #search:hover{
+    border: 1.5px solid  #80858e;
+}
+
+.subBtn {
+    display: flex;
+    justify-content: center;
+}
+#search{
+
+        background-color: transparent;
+        border: 1px solid grey;
+        border-radius: 0 2rem 2rem 0;
+        width: 7rem;
+        justify-content: center;
+        flex-direction: row;
+        font-size: 1.2rem;
+        margin: 0;
+}
+
+button {
+    display: inline-flexbox;
+    flex-direction: column;
+    background: #333539;
+    border: 2px solid #333539;
+    padding: 6px 10px;
+    margin: 3px;
+    border-radius: 3px;
+}
+
+button:hover {
+    border: 1.5px solid #80858e;
+}
+
+a {
+    font-size: none;
+    color: #e8eaed;
+    text-decoration: none;
+}
+
+footer {
+    background-color: #121315;
+    color: #80858e;
+    padding: 10px 8px;
+    width: 100%;
+    position: fixed;
+    bottom: 0px;
+    margin: 0;
+}

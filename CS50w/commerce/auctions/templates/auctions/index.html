@@ -1,0 +1,61 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+<h2>Active Listings</h2>
+<div class="container mt-3">
+    {% for item in items %}
+        <a class=" text-decoration-none text-dark" href="{% url 'listing' item.id %}">
+            <div class="row my-3 p-2">
+                <div class="col"><img src="{{item.image}}" alt="{{item.title}}"></div>
+                <div class="col">
+                    <div class="listing_card mt-3">
+                        <div>
+                            <p class="text h2 "><Strong>{{item.title}}</Strong></p>
+                            <p class="text">{{item.discription}}</p>
+                            <p class="text"><strong>Price: ${{item.price}}</strong></p>
+                            <p class="text text-muted">Created {{item.date}}</p>
+                        </div>
+                        <div>
+                            {% if user.is_authenticated and not item.owner == request.user.username %}
+                                <div class="form-group">
+                                    {% if not item.id in watchlist_ids %}
+                                        <form action="{% url 'watchlist' %}" method="post">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-primary" name="product_id"
+                                                value="{{item.id}}">Watchlist</button>
+                                        </form>
+                                    {% elif item.id in watchlist_ids %}
+                                        <form action="{% url 'remove' %}" method="post">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger" name="product_id"
+                                                value="{{item.id}}">Remove </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+
+                            {% elif user.is_authenticated and item.owner == request.user.username %}
+                                <div class="form-group">
+                                    <form action="{% url 'close' %}" method="post">
+                                        {% csrf_token %}
+                                        {% if item.status %}
+                                            <button  class="btn btn-secondary" disabled>Close Auction</button>
+                                        {% else %}
+                                            <button type="submit" class="btn btn-danger" name="product_id" value="{{item.id}}">Close
+                                            Auction</button>
+                                        {% endif %}
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+    {% empty %}
+        No current Auctions.
+    {% endfor %}
+</div>
+
+{% endblock %}
