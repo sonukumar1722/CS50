@@ -1,0 +1,5 @@
+{% extends "layout.html" %}
+
+{% block main %}
+A share of {{data["name"]}} ({{data["symbol"]}}) costs {{data["price"] | usd}}
+{% endblock %}

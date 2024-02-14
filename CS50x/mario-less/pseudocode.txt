@@ -1,0 +1,4 @@
+1. Prompt user for height
+2. If height is less than 1 or greater than 8 go back to step 1.
+3. Iterate from 1 to height
+    1. On iteration i, print j-i spaces and i hashes then a new line.
