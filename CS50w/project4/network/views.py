@@ -1,53 +1,39 @@
 import json
-from re import T
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import JsonResponse
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import *
+from .models import User, NewPost, Follow, Likes
 
 
 @csrf_exempt
 def index(request):
 
     # Attempt to get all the post
-    if request.method != 'POST':
-        posts = NewPost.objects.all().order_by('-datetime')
-        return render(request, "network/index.html", {
-        'posts': posts,
-        })
-
-    # Attempt to save the new psot
-    content = request.POST['content']
-    creator = request.user
-    NewPost(content= content, creator = creator).save()
-
-    return HttpResponseRedirect(reverse('index'))
+   if request.method == 'POST':
+        content = request.POST.get('content')
+        if content:
+            NewPost.objects.create(content=content, creator=request.user)
+        return HttpResponseRedirect(reverse('index'))
+    # Attempts to save the post
+    posts = NewPost.objects.all().order_by('-datetime')
+    return render(request, "network/index.html", {'posts': posts})
 
 @csrf_exempt
 def login_view(request):
-    if request.method == "POST":
-
-        # Attempt to sign user in
-        username = request.POST["username"]
-        password = request.POST["password"]
+   if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
         user = authenticate(request, username=username, password=password)
-
-        # Check if authentication successful
-        if user is not None:
+        if user:
             login(request, user)
             return HttpResponseRedirect(reverse("index"))
-        else:
-            return render(request, "network/login.html", {
-                "message": "Invalid username and/or password."
-            })
-    else:
-        return render(request, "network/login.html")
+        return render(request, "network/login.html", {"message": "Invalid username and/or password."})
+    return render(request, "network/login.html")
 
 
 def logout_view(request):
@@ -55,40 +41,33 @@ def logout_view(request):
     return HttpResponseRedirect(reverse("index"))
 
 def register(request):
-    if request.method == "POST":
-        username = request.POST["username"]
-        email = request.POST["email"]
+     if request.method == "POST":
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        confirmation = request.POST.get("confirmation")
 
-        # Ensure password matches confirmation
-        password = request.POST["password"]
-        confirmation = request.POST["confirmation"]
         if password != confirmation:
-            return render(request, "network/register.html", {
-                "message": "Passwords must match."
-            })
+            return render(request, "network/register.html", {"message": "Passwords must match."})
 
-        # Attempt to create new user
         try:
-            user = User.objects.create_user(username = username, email = email, password = password)
+            user = User.objects.create_user(username=username, email=email, password=password)
             user.save()
-
-            
+            login(request, user)
+            return HttpResponseRedirect(reverse("index"))
         except IntegrityError:
-            return render(request, "network/register.html", {
-                "message": "Username already taken."
-            })
-        login(request, user)
-        return HttpResponseRedirect(reverse("index"))
-    else:
-        return render(request, "network/register.html")
+            return render(request, "network/register.html", {"message": "Username already taken."})
+
+    return render(request, "network/register.html")
 
 
 def profile(request, user_id):
 
     # Attempt to get all the post in reverse chronological order
-    posts = NewPost.objects.filter(creator_id= user_id).order_by('-datetime')
-    following_count = len(Follow.objects.filter(follower_id= user_id))
-    follower_count = len(Follow.objects.filter(following_id= user_id))
+    user = get_object_or_404(User, id=user_id)
+    posts = NewPost.objects.filter(creator=user).order_by('-datetime')
+    following_count = Follow.objects.filter(follower=user).count()
+    follower_count = Follow.objects.filter(following=user).count()
     return render(request, "network/profile.html", {
         'posts': posts,
         'user_id': user_id,
@@ -99,58 +78,38 @@ def profile(request, user_id):
 
 @csrf_exempt
 def follow(request, user_id):
-    user_ = None
-
-    # Attempt to follow/unfollow the post
     if request.method == 'PUT':
         data = json.loads(request.body)
-        user_ = User.objects.get(id= data.get('following_id'))
-
-        # Attempt to follow the post
-        if data.get('followed') == True:
-            Follow(followed = True, follower = request.user, following = user_).save()
-
-        # Attempt unfollow the post
-        elif data.get('followed') == False:
-            Follow.objects.get(followed = True, follower = request.user.id , following = user_).delete()
-
+        following_user = get_object_or_404(User, id=data.get('following_id'))
+        if data.get('followed'):
+            Follow.objects.get_or_create(follower=request.user, following=following_user, defaults={'followed': True})
+        else:
+            Follow.objects.filter(follower=request.user, following=following_user, followed=True).delete()
         return HttpResponseRedirect(reverse('profile', args=(user_id,)))
 
-    # Attempt to change the follow button style from follow to unfollow or vice versa
-    try:
-        element = Follow.objects.get(followed = True, follower = request.user.id , following = user_id)
-        return JsonResponse({"followed": element.followed}, safe = False)
-    except:
-        return JsonResponse({"followed": False}, safe = False)
+    followed = Follow.objects.filter(follower=request.user, following_id=user_id, followed=True).exists()
+    return JsonResponse({"followed": followed})
 
 
 @login_required
 def following(request):
 
-    # Display all the post of other user whom the current user follows
-    posts = []
-    user_follow_list = Follow.objects.filter(follower_id= request.user.id)
-    for user_ids in user_follow_list:
-        all_posts =  NewPost.objects.filter(creator_id= user_ids.following_id)
-        for post in all_posts:
-            posts.append(post)
-            print(posts)
-    return render(request, 'network/following.html', {
-        'posts': posts
-    })
+    user_follow_list = Follow.objects.filter(follower=request.user)
+    posts = NewPost.objects.filter(creator__in=[follow.following for follow in user_follow_list]).order_by('-datetime')
+    return render(request, 'network/following.html', {'posts': posts})
 
 
 @csrf_exempt
 @login_required
 def edit(request):
-
     # Attempt to edit the content of the post
-    if request.method == "POST":
-        post_id = request.POST['post_id']
-        content = request.POST['content']
-        element = NewPost.objects.get(id= post_id)
-        element.content = content
-        element.save()
+   if request.method == "POST":
+        post_id = request.POST.get('post_id')
+        content = request.POST.get('content')
+        post = get_object_or_404(NewPost, id=post_id)
+        if post.creator == request.user:
+            post.content = content
+            post.save()
         return HttpResponseRedirect(reverse('index'))
 
 
@@ -187,5 +146,5 @@ def like(request):
 
         return JsonResponse({"like_count": post.likes}, safe=False)
 
-    liked = Likes.objects.filter(liked_user_id= request.user.id).values()
+    liked = Likes.objects.filter(liked_user=request.user).values()
     return JsonResponse(list(liked), safe=False)
