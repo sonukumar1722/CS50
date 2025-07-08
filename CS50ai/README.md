@@ -10,14 +10,14 @@ These are my solutions forCS50's Introduction to Artificial Intelligence with Py
 <br/>
 
 ## Table of Contents
-### [Week 0] - [Search](https://cs50.harvard.edu/ai/2023/weeks/0/)
+### [Week 0] - [Search](https://cs50.harvard.edu/ai/weeks/0/)
 - [Degrees](degrees/)
 - [Tic-Tac-Toe](tictactoe/)
 - [Maze](maze/)
 
 
 
-### [Week 1] - [Knowledge](https://cs50.harvard.edu/ai/2023/weeks/1/)
+### [Week 1] - [Knowledge](https://cs50.harvard.edu/ai/weeks/1/)
 - [Knights](knights/)
 - [Minesweeper](minesweeper/)
 
