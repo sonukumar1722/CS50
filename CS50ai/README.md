@@ -17,11 +17,11 @@ These are my solutions forCS50's Introduction to Artificial Intelligence with Py
 
 
 
-<!-- ### [Week 1] - [Knowledge](https://cs50.harvard.edu/ai/2023/weeks/1/)
+### [Week 1] - [Knowledge](https://cs50.harvard.edu/ai/2023/weeks/1/)
 - [Knights](knights/)
 - [Minesweeper](minesweeper/)
 
-
+<!-- 
 ### [Week 2] - [Uncertainty](https://cs50.harvard.edu/ai/2023/weeks/2/)
 - [PageRank](pagerank/)
 - [Heredity](heredity/)
