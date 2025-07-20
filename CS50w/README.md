@@ -10,22 +10,22 @@ These are my solutions forCS50’s Web Programming with Python.
 <br/>
 
 ## Table of Contents
-### [Project 0] - (https://cs50.harvard.edu/web/2020/Projects/0/search)
+### [Project 0](https://cs50.harvard.edu/web/2020/Projects/0/search)
 - [Search](search/)
 
 
-### [Project 1] - (https://cs50.harvard.edu/web/2020/Projects/1/wiki)
+### [Project 1](https://cs50.harvard.edu/web/2020/Projects/1/wiki)
 - [Wiki](wiki/)
 
 
-### [Project 2] - (https://cs50.harvard.edu/web/2022/Projects/2/commerce)
+### [Project 2](https://cs50.harvard.edu/web/2022/Projects/2/commerce)
 - [Commerce](commerce/)
 
 
-### [Project 3] - (https://cs50.harvard.edu/web/2020/Projects/3/mail)
+### [Project 3](https://cs50.harvard.edu/web/2020/Projects/3/mail)
 - [Mail](mail/)
 
-### [Project 4] - (https://cs50.harvard.edu/web/2020/Projects/4/network)
+### [Project 4](https://cs50.harvard.edu/web/projects/4/network/)
 - [Network](project4/)
 
 ### [Project 5] 
