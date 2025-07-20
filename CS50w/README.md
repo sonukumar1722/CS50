@@ -28,13 +28,13 @@ These are my solutions forCS50’s Web Programming with Python.
 ### [Project 4](https://cs50.harvard.edu/web/projects/4/network/)
 - [Network](project4/)
 
-### [Project 5] 
+### [Project 5](https://cs50.harvard.edu/web/2020/Projects/3/mail) 
 - [Homepage](homepage/)
 - 
-### [Project 6] 
+### [Project 6](https://cs50.harvard.edu/web/2020/Projects/3/mail)
 - [Pizza](project3/)
 
-### [Project 7] 
+### [Project 7](https://cs50.harvard.edu/web/projects/4/network/) 
 - [Birthdays](birthdays/)
 
 
