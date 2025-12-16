@@ -30,5 +30,6 @@ These are my solutions forCS50’s Web Programming with Python.
 
   
 ### [Final Project](https://cs50.harvard.edu/web/projects/final/capstone/)
-- [Finance Tracker]('CS50W Final Project/')
+- [Finance Tracker]('CS50W Final Project'/)
+
 
