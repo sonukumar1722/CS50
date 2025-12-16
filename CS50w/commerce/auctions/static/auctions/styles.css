@@ -1,0 +1,26 @@
+body {
+    padding: 10px;
+}
+.row {
+    height: 16rem !important;
+    border: 1px solid #e1e1e1 !important;
+    border-radius: 5px;
+}
+
+.link:hover{
+    text-decoration: none;
+    color: black;
+}
+
+img{
+    height: 14.5rem !important;
+}
+
+.list-img-h{
+    height: 25.5rem !important;
+}
+
+.listing_card{
+    display: flex;
+    justify-content: space-between;
+}
