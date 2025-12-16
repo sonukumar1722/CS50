@@ -68,3 +68,6 @@ These are my solutions for CS50's Introduction to Programming with Python 2022.
 - [Seasons of Love](seasons/)
 - [Cookie Jar](jar/)
 - [CS50 Shirtificate](shirtificate/)
+
+### [Final Project] - [Project](https://cs50.harvard.edu/python/project/)
+- [Finance Tracker](CS50P_final_project/)
