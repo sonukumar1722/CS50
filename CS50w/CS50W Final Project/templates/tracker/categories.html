@@ -1,0 +1,222 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Categories - Finance Tracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">Categories</h4>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#categoryModal">
+        <i class="bi bi-plus-lg me-1"></i> Add Category
+    </button>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-transparent">
+                <h6 class="mb-0 text-success"><i class="bi bi-arrow-down-circle me-2"></i>Income Categories</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush" id="incomeCategories">
+                    <div class="list-group-item text-center text-muted py-4">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-transparent">
+                <h6 class="mb-0 text-danger"><i class="bi bi-arrow-up-circle me-2"></i>Expense Categories</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush" id="expenseCategories">
+                    <div class="list-group-item text-center text-muted py-4">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="categoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Add Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="categoryForm">
+                    <input type="hidden" id="categoryId">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Type</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="catType" id="typeExpense" value="expense" checked>
+                            <label class="btn btn-outline-danger" for="typeExpense">Expense</label>
+                            <input type="radio" class="btn-check" name="catType" id="typeIncome" value="income">
+                            <label class="btn btn-outline-success" for="typeIncome">Income</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="color" class="form-label">Color</label>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="color" class="form-control form-control-color" id="color" value="#6c757d">
+                            <span class="text-muted" id="colorValue">#6c757d</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="icon" class="form-label">Icon</label>
+                        <select class="form-select" id="icon">
+                            <option value="bi-tag">Tag</option>
+                            <option value="bi-cash">Cash</option>
+                            <option value="bi-briefcase">Briefcase</option>
+                            <option value="bi-graph-up">Graph</option>
+                            <option value="bi-cup-hot">Coffee</option>
+                            <option value="bi-car-front">Car</option>
+                            <option value="bi-lightning">Lightning</option>
+                            <option value="bi-film">Entertainment</option>
+                            <option value="bi-bag">Shopping</option>
+                            <option value="bi-heart-pulse">Health</option>
+                            <option value="bi-house">House</option>
+                            <option value="bi-phone">Phone</option>
+                            <option value="bi-airplane">Travel</option>
+                            <option value="bi-book">Education</option>
+                            <option value="bi-gift">Gift</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveCategory()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
+
+document.getElementById('color').addEventListener('input', (e) => {
+    document.getElementById('colorValue').textContent = e.target.value;
+});
+
+async function loadCategories() {
+    try {
+        const categories = await apiRequest('/api/categories/');
+        
+        const income = categories.filter(c => c.category_type === 'income');
+        const expense = categories.filter(c => c.category_type === 'expense');
+        
+        document.getElementById('incomeCategories').innerHTML = income.length === 0 
+            ? '<div class="list-group-item text-center text-muted py-4">No income categories</div>'
+            : income.map(c => categoryItem(c)).join('');
+        
+        document.getElementById('expenseCategories').innerHTML = expense.length === 0 
+            ? '<div class="list-group-item text-center text-muted py-4">No expense categories</div>'
+            : expense.map(c => categoryItem(c)).join('');
+    } catch (error) {
+        console.error('Error loading categories:', error);
+    }
+}
+
+function categoryItem(c) {
+    return `
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" 
+                     style="width: 40px; height: 40px; background-color: ${c.color}20; color: ${c.color}">
+                    <i class="bi ${c.icon}"></i>
+                </div>
+                <span class="fw-medium">${escapeHtml(c.name)}</span>
+            </div>
+            <div>
+                <button class="btn btn-sm btn-outline-primary me-1" onclick="editCategory(${JSON.stringify(c).replace(/"/g, '&quot;')})">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${c.id})">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function resetForm() {
+    document.getElementById('categoryId').value = '';
+    document.getElementById('categoryForm').reset();
+    document.getElementById('typeExpense').checked = true;
+    document.getElementById('color').value = '#6c757d';
+    document.getElementById('colorValue').textContent = '#6c757d';
+    document.getElementById('modalTitle').textContent = 'Add Category';
+}
+
+document.getElementById('categoryModal').addEventListener('show.bs.modal', (e) => {
+    if (e.relatedTarget) resetForm();
+});
+
+function editCategory(c) {
+    document.getElementById('categoryId').value = c.id;
+    document.getElementById('modalTitle').textContent = 'Edit Category';
+    document.getElementById('name').value = c.name;
+    document.getElementById('color').value = c.color;
+    document.getElementById('colorValue').textContent = c.color;
+    document.getElementById('icon').value = c.icon;
+    
+    if (c.category_type === 'income') {
+        document.getElementById('typeIncome').checked = true;
+    } else {
+        document.getElementById('typeExpense').checked = true;
+    }
+    
+    modal.show();
+}
+
+async function saveCategory() {
+    const id = document.getElementById('categoryId').value;
+    const data = {
+        name: document.getElementById('name').value,
+        category_type: document.querySelector('input[name="catType"]:checked').value,
+        color: document.getElementById('color').value,
+        icon: document.getElementById('icon').value
+    };
+    
+    try {
+        if (id) {
+            await apiRequest(`/api/categories/${id}/`, 'PUT', data);
+        } else {
+            await apiRequest('/api/categories/', 'POST', data);
+        }
+        modal.hide();
+        loadCategories();
+    } catch (error) {
+        console.error('Error saving category:', error);
+        alert('Error saving category');
+    }
+}
+
+async function deleteCategory(id) {
+    if (!confirm('Are you sure you want to delete this category? Transactions using this category will become uncategorized.')) return;
+    
+    try {
+        await apiRequest(`/api/categories/${id}/`, 'DELETE');
+        loadCategories();
+    } catch (error) {
+        console.error('Error deleting category:', error);
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+loadCategories();
+</script>
+{% endblock %}
