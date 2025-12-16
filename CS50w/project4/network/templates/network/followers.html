@@ -1,0 +1,24 @@
+{% extends 'network/layout.html' %}
+
+{% block body %}
+    <h1>Followers</h1>
+    {% if follower_users %}
+        {% for item in follower_users %}
+            {% with u=item.user %}
+            <div class="card mb-3 p-3 d-flex flex-row align-items-center">
+                <img src="{{ u.profile_picture|default:'https://via.placeholder.com/80' }}" class="profile-avatar" alt="{{ u.username }} avatar">
+                <div class="ml-3">
+                    <div class="h5 mb-1"><a href="{% url 'profile' u.id %}">{{ u.username }}</a></div>
+                    <div class="small text-muted">{{ u.contact_email|default:u.email }}</div>
+                    {% if u.bio %}
+                        <div class="small">{{ u.bio }}</div>
+                    {% endif %}
+                    <div class="small mt-1">Followers: {{ item.follower_count }} · Following: {{ item.following_count }}</div>
+                </div>
+            </div>
+            {% endwith %}
+        {% endfor %}
+    {% else %}
+        <p>No followers yet.</p>
+    {% endif %}
+{% endblock %}

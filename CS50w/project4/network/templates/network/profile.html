@@ -1,0 +1,87 @@
+{% extends 'network/layout.html' %}
+{% load static %}
+
+{% block body %}
+    <div class="container">
+        <div class="card mb-3 p-3 profile-header">
+            <div class="d-flex">
+                <img src="{{ profile_user.profile_picture|default:'https://via.placeholder.com/120' }}" class="profile-avatar" alt="{{ profile_user.username }} avatar">
+                <div class="ml-3">
+                    <h3 class="mb-1">{{ profile_user.username }}</h3>
+                    <div class="text-muted small">{{ profile_user.contact_email|default:profile_user.email }}</div>
+                    {% if profile_user.bio %}
+                        <div class="mt-1">{{ profile_user.bio }}</div>
+                    {% endif %}
+                    <div class="mt-2 ubuntu" id="followers">
+                        Followers:  <span id="follower_count">{{follower_count}}</span>
+                        Following:  <span id="following_count">{{following_count}}</span>
+                        {% if user.is_authenticated and not request.user.id == user_id %}
+                        <button id="follow" class="btn btn-sm btn-outline-primary ubuntu">Follow</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if user.is_authenticated and request.user.id == profile_user.id %}
+        <div class="card mb-3 p-3">
+            <h5 class="mb-3">Edit Profile</h5>
+            <form action="{% url 'edit_profile' %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="profile_picture">Profile picture URL</label>
+                    <input type="url" class="form-control" id="profile_picture" name="profile_picture" value="{{ profile_user.profile_picture }}" placeholder="https://example.com/avatar.jpg">
+                </div>
+                <div class="form-group">
+                    <label for="contact_email">Contact email</label>
+                    <input type="email" class="form-control" id="contact_email" name="contact_email" value="{{ profile_user.contact_email|default:profile_user.email }}">
+                </div>
+                <div class="form-group">
+                    <label for="bio">Bio</label>
+                    <textarea class="form-control" id="bio" name="bio" rows="3" placeholder="Tell others about you">{{ profile_user.bio }}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Save profile</button>
+            </form>
+        </div>
+        {% endif %}
+        {% block posts %}
+            <h1>Posts</h1>
+            {% for post in posts %}
+                <div class="form-group brd">
+                    <div id="name" class="font-weight-bold h5 ubuntu">
+                        <a href="{% url 'profile' post.creator.id %}">{{post.creator.username}}</a>
+                    </div>
+                    {% if request.user.id == post.creator.id %}
+                        <a id="edit-{{post.id}}" class="text-primary ubuntu" href="#edit-{{post.id}}">Edit</a>
+                        <div id="edit-area-{{post.id}}" class="form-group edit-area hidden">
+                            <form action="edit" method="post">
+                                {% csrf_token %}
+                                <textarea name="content" class="form-control" id="content" cols="8" rows="3">{{post.content}}</textarea>
+                                <button class="btn btn-primary mt-1" type="submit" name="post_id" value="{{post.id}}">Save</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                    <div id='content' class="font-weight-normal">{{post.content}}</div>
+                    <div class="text-secondary ubuntu">{{post.datetime}}</div>
+                    <div class="text-secondary ubuntu"><a  id="like-{{post.id}}" href="">&#x2764;</a> <span>{{post.likes}}</span></div>
+                        <div class="mt-2">
+                            <div class="font-weight-bold">Comments</div>
+                            <div id="comments-list-{{post.id}}" class="small" data-post-author-id="{{post.creator_id}}"></div>
+                            {% if user.is_authenticated %}
+                            <form class="comment-form mt-2" data-post-id="{{post.id}}">
+                                {% csrf_token %}
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="content" placeholder="Write a comment...">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-primary" type="submit">Post</button>
+                                    </div>
+                                </div>
+                            </form>
+                            {% endif %}
+                        </div>
+                </div>
+                {% empty %}
+                    No Posts!
+            {% endfor %}
+        {% endblock %}
+    </div>
+{% endblock %}

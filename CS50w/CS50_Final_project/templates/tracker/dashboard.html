@@ -1,0 +1,321 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Dashboard - Finance Tracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">Dashboard</h4>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-primary btn-sm period-btn" data-period="week">Week</button>
+        <button type="button" class="btn btn-primary btn-sm period-btn active" data-period="month">Month</button>
+        <button type="button" class="btn btn-outline-primary btn-sm period-btn" data-period="year">Year</button>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card stat-card">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon bg-success bg-opacity-10 text-success me-3">
+                    <i class="bi bi-arrow-down-circle"></i>
+                </div>
+                <div>
+                    <p class="text-muted mb-0 small">Total Income</p>
+                    <p class="stat-value text-success mb-0" id="totalIncome">$0.00</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon bg-danger bg-opacity-10 text-danger me-3">
+                    <i class="bi bi-arrow-up-circle"></i>
+                </div>
+                <div>
+                    <p class="text-muted mb-0 small">Total Expenses</p>
+                    <p class="stat-value text-danger mb-0" id="totalExpenses">$0.00</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3">
+                    <i class="bi bi-wallet2"></i>
+                </div>
+                <div>
+                    <p class="text-muted mb-0 small">Balance</p>
+                    <p class="stat-value text-primary mb-0" id="balance">$0.00</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-transparent">
+                <h6 class="mb-0">Income vs Expenses</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="lineChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-transparent">
+                <h6 class="mb-0">Expenses by Category</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="pieChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Recent Transactions</h6>
+                <a href="{% url 'transactions' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <tbody id="recentTransactions">
+                            <tr><td class="text-center text-muted py-4">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Budget Progress</h6>
+                <a href="{% url 'budgets' %}" class="btn btn-sm btn-outline-primary">Manage</a>
+            </div>
+            <div class="card-body" id="budgetProgress">
+                <p class="text-muted text-center py-4">Loading...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let lineChart, pieChart;
+let currentPeriod = 'month';
+
+document.querySelectorAll('.period-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.period-btn').forEach(b => {
+            b.classList.remove('active', 'btn-primary');
+            b.classList.add('btn-outline-primary');
+        });
+        btn.classList.add('active', 'btn-primary');
+        btn.classList.remove('btn-outline-primary');
+        currentPeriod = btn.dataset.period;
+        loadDashboardData();
+    });
+});
+
+async function loadDashboardData() {
+    try {
+        const data = await apiRequest(`/api/dashboard-data/?period=${currentPeriod}`);
+        
+        document.getElementById('totalIncome').textContent = formatCurrency(data.total_income);
+        document.getElementById('totalExpenses').textContent = formatCurrency(data.total_expenses);
+        document.getElementById('balance').textContent = formatCurrency(data.balance);
+        
+        const balance = parseFloat(data.balance);
+        document.getElementById('balance').className = 
+            `stat-value mb-0 ${balance >= 0 ? 'text-primary' : 'text-danger'}`;
+        
+        updateLineChart(data.daily_data);
+        updatePieChart(data.expense_by_category);
+        updateRecentTransactions(data.recent_transactions);
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+    }
+    
+    loadBudgets();
+}
+
+async function loadBudgets() {
+    try {
+        const budgets = await apiRequest('/api/budgets/');
+        const container = document.getElementById('budgetProgress');
+        
+        if (budgets.length === 0) {
+            container.innerHTML = '<p class="text-muted text-center py-4">No budgets set. <a href="/budgets/">Create one</a></p>';
+            return;
+        }
+        
+        container.innerHTML = budgets.map(b => `
+            <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                    <span style="color: ${b.category.color}">${b.category.name}</span>
+                    <span class="small ${b.percentage >= 100 ? 'text-danger' : 'text-muted'}">
+                        ${formatCurrency(b.spent)} / ${formatCurrency(b.amount)}
+                    </span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar ${b.percentage >= 100 ? 'bg-danger' : b.percentage >= 80 ? 'bg-warning' : 'bg-success'}" 
+                         style="width: ${b.percentage}%"></div>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading budgets:', error);
+    }
+}
+
+function updateLineChart(dailyData) {
+    const ctx = document.getElementById('lineChart').getContext('2d');
+    const labels = Object.keys(dailyData).sort();
+    const incomeData = labels.map(d => parseFloat(dailyData[d].income));
+    const expenseData = labels.map(d => parseFloat(dailyData[d].expense));
+    
+    const formatLabels = labels.map(d => {
+        const date = new Date(d);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+    
+    if (lineChart) lineChart.destroy();
+    
+    lineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: formatLabels,
+            datasets: [{
+                label: 'Income',
+                data: incomeData,
+                borderColor: '#28a745',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                fill: true,
+                tension: 0.4
+            }, {
+                label: 'Expenses',
+                data: expenseData,
+                borderColor: '#dc3545',
+                backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => '$' + value
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updatePieChart(categoryData) {
+    const ctx = document.getElementById('pieChart').getContext('2d');
+    
+    if (pieChart) pieChart.destroy();
+    
+    if (categoryData.length === 0) {
+        pieChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['No data'],
+                datasets: [{
+                    data: [1],
+                    backgroundColor: ['#e9ecef']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+        return;
+    }
+    
+    pieChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: categoryData.map(c => c.name),
+            datasets: [{
+                data: categoryData.map(c => parseFloat(c.total)),
+                backgroundColor: categoryData.map(c => c.color)
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 12
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateRecentTransactions(transactions) {
+    const container = document.getElementById('recentTransactions');
+    
+    if (transactions.length === 0) {
+        container.innerHTML = '<tr><td class="text-center text-muted py-4">No transactions yet</td></tr>';
+        return;
+    }
+    
+    container.innerHTML = transactions.map(t => `
+        <tr>
+            <td>
+                <div class="fw-medium">${t.description}</div>
+                <small class="text-muted">${t.category}</small>
+            </td>
+            <td class="text-end">
+                <span class="badge ${t.transaction_type === 'income' ? 'badge-income' : 'badge-expense'}">
+                    ${t.transaction_type === 'income' ? '+' : '-'}${formatCurrency(t.amount)}
+                </span>
+                <div class="small text-muted">${formatDate(t.date)}</div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+    }).format(parseFloat(amount));
+}
+
+function formatDate(dateStr) {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+loadDashboardData();
+</script>
+{% endblock %}
