@@ -102,7 +102,7 @@ This project is distinct from other CS50W projects in several key ways:
 
 3. **Start the development server**:
    ```bash
-   python manage.py runserver 0.0.0.0:5000
+   python manage.py runserver localhost:5000
    ```
 
 4. **Access the application** at `http://localhost:5000`
